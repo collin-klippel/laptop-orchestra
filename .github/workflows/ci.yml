@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Restore build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            client/node_modules
+            server/node_modules
+            shared/node_modules
+            server/dist
+          key: ${{ runner.os }}-node-22-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-22-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Knip (unused exports & deps)
+        run: npm run knip
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Build
+        run: npm run build
+
+      - name: Save build cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            node_modules
+            client/node_modules
+            server/node_modules
+            shared/node_modules
+            server/dist
+          key: ${{ runner.os }}-node-22-${{ hashFiles('**/package-lock.json') }}

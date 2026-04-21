@@ -1,0 +1,152 @@
+:root {
+  --bg: #0a0e16;
+  --bg-elev: #121826;
+  --border: #2a2438;
+  --text: #e8e4dc;
+  --muted: #94a3b8;
+  --accent: #22d3ee;
+  --accent-strong: #06b6d4;
+  --danger: #f87171;
+  --self: #fde68a;
+  --font-display:
+    "Cinzel", "Palatino Linotype", Palatino, "Book Antiqua", serif;
+  --title-ink: #ebe4d7;
+  --title-glow: rgba(201, 168, 108, 0.35);
+
+  font-family:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+  color: var(--text);
+  background:
+    radial-gradient(1000px 700px at 12% -8%, #3d2838 0%, transparent 55%),
+    radial-gradient(900px 600px at 85% 12%, #1f1810 0%, transparent 50%),
+    radial-gradient(1400px 900px at 50% 100%, #0d1528 0%, var(--bg) 55%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100vh;
+}
+
+html,
+body {
+  width: 100%;
+}
+
+body {
+  display: flex;
+}
+
+#root {
+  flex: 1;
+  width: 100%;
+  display: flex;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  background: var(--accent);
+  color: #062028;
+  border: none;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  font-weight: 600;
+  transition:
+    background 120ms ease,
+    transform 120ms ease;
+}
+
+button:hover:not(:disabled) {
+  background: var(--accent-strong);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+input {
+  font: inherit;
+  color: var(--text);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  outline: none;
+  transition: border-color 120ms ease;
+}
+
+input:focus {
+  border-color: var(--accent);
+}
+
+a {
+  color: var(--accent);
+}
+
+@keyframes sign-in-appear {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sign-in-form {
+  animation: sign-in-appear 0.65s ease-out both;
+}
+
+.sign-in-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.35rem, 4vw, 1.85rem);
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  color: var(--title-ink);
+  text-shadow:
+    0 0 36px var(--title-glow),
+    0 1px 2px rgba(0, 0, 0, 0.45);
+  text-align: center;
+}
+
+.sign-in-tagline {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(0.8rem, 2.4vw, 1rem);
+  line-height: 1.35;
+  letter-spacing: 0.06em;
+  text-align: center;
+  color: color-mix(in srgb, var(--title-ink) 72%, transparent);
+}
+
+@keyframes marimba-sequence-playing-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+  50% {
+    opacity: 0.55;
+    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+  }
+}
+
+.marimba-sequence-playing-indicator {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: rgba(34, 197, 94, 0.95);
+  animation: marimba-sequence-playing-pulse 1.6s ease-in-out infinite;
+}

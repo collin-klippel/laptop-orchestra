@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignore": ["scripts/ensure-esbuild-platform.mjs"],
+  "workspaces": {
+    "client": {
+      "entry": ["index.html"]
+    },
+    "server": {
+      "ignore": ["scripts/**"]
+    }
+  }
+}

@@ -1,0 +1,72 @@
+#!/usr/bin/env sh
+set -e
+
+npm install --package-lock-only --ignore-scripts
+if ! git diff --quiet package-lock.json; then
+  git add package-lock.json
+fi
+
+# Snapshot tracked file blobs so we only `git add` paths Knip/--format actually changed
+# (avoids staging unrelated unstaged edits).
+snapshot () {
+  git ls-files | while IFS= read -r f; do
+    if [ -f "$f" ]; then
+      printf '%s\t%s\n' "$(git hash-object "$f")" "$f"
+    fi
+  done | LC_ALL=C sort -t "$(printf '\t')" -k2,2
+}
+
+before=$(mktemp)
+after=$(mktemp)
+trap 'rm -f "$before" "$after"' EXIT
+
+snapshot > "$before"
+npm run knip:fix
+npm run lint:fix
+snapshot > "$after"
+
+awk -F '\t' '
+  FNR==NR { bh[$2]=$1; next }
+  { ah[$2]=$1 }
+  END {
+    for (p in ah) {
+      if (!(p in bh) || bh[p] != ah[p]) print p
+    }
+    for (p in bh) {
+      if (!(p in ah)) print p
+    }
+  }
+' "$before" "$after" | while IFS= read -r f; do
+  [ -n "$f" ] && git add -- "$f"
+done
+
+# Take a snapshot before lint-staged to track what it changes
+before_lint_staged=$(mktemp)
+trap 'rm -f "$before" "$after" "$before_lint_staged"' EXIT
+
+snapshot > "$before_lint_staged"
+
+npx lint-staged
+
+# Stage any files modified by lint-staged
+after_lint_staged=$(mktemp)
+trap 'rm -f "$before" "$after" "$before_lint_staged" "$after_lint_staged"' EXIT
+
+snapshot > "$after_lint_staged"
+
+awk -F '\t' '
+  FNR==NR { bh[$2]=$1; next }
+  { ah[$2]=$1 }
+  END {
+    for (p in ah) {
+      if (!(p in bh) || bh[p] != ah[p]) print p
+    }
+    for (p in bh) {
+      if (!(p in ah)) print p
+    }
+  }
+' "$before_lint_staged" "$after_lint_staged" | while IFS= read -r f; do
+  [ -n "$f" ] && git add -- "$f"
+done
+
+npm run verify
